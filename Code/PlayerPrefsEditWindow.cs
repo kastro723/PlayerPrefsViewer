@@ -35,7 +35,11 @@ public class PlayerPrefsEditWindow : EditorWindow
         EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("Modify Key-Value Pair", EditorStyles.boldLabel);
+
+        GUI.enabled = false;
         key = EditorGUILayout.TextField("Key", key);
+        GUI.enabled = true;
+
         value = EditorGUILayout.TextField("Value", value);
         selectedType = (PlayerPrefsManager.ValueType)EditorGUILayout.EnumPopup("Type", selectedType);
 
@@ -50,26 +54,30 @@ public class PlayerPrefsEditWindow : EditorWindow
 
     private void ModifyPlayerPrefs()
     {
-        if (!originalKey.Equals(key))
-        {
-            PlayerPrefsManager.Instance.RemoveKey(originalKey);
-        }
 
         if (selectedType == PlayerPrefsManager.ValueType.String)
         {
             PlayerPrefsManager.Instance.SetString(key, value);
+            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.String);
         }
         else if (selectedType == PlayerPrefsManager.ValueType.Int && int.TryParse(value, out int intValue))
         {
             PlayerPrefsManager.Instance.SetInt(key, intValue);
+            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.Int);
+        }
+        else if (selectedType == PlayerPrefsManager.ValueType.Float && float.TryParse(value, out float floatValue))
+        {
+            PlayerPrefsManager.Instance.SetFloat(key, floatValue);
+            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.Float); // 타입 정보 업데이트
         }
         else
         {
-            EditorUtility.DisplayDialog("Invalid Input", "Value is not an integer.", "OK");
+            EditorUtility.DisplayDialog("Invalid Input", "The provided value does not match the selected type.", "OK");
             return;
         }
 
         PlayerPrefsManager.TriggerPreferencesUpdated();
         Close();
     }
+
 }

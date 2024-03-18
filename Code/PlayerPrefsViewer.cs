@@ -1,3 +1,4 @@
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -8,9 +9,10 @@ public class PlayerPrefsViewer : EditorWindow
     private string newKey = "";
     private string newValue = "";
     private int selectedTypeIndex = 0;
-    private string[] typeOptions = { "String", "Int" };
+    private string[] typeOptions = { "String", "Int", "Float" };
     private Dictionary<string, (string Value, PlayerPrefsManager.ValueType Type)> playerPrefsCache = new Dictionary<string, (string, PlayerPrefsManager.ValueType)>();
-    private List<string> keysToRemove = new List<string>(); // »èÁ¦ÇÒ Å°µéÀ» ÀúÀåÇÒ ¸®½ºÆ®
+    private List<string> keysToRemove = new List<string>(); // ì‚­ì œí•  í‚¤ë“¤ì„ ì €ì¥í•  ë¦¬ìŠ¤íŠ¸
+
 
     [MenuItem("Tools/Player Prefs Viewer")]
     public static void ShowWindow()
@@ -21,19 +23,19 @@ public class PlayerPrefsViewer : EditorWindow
         window.Show();
     }
 
-    void OnEnable() // Ã¢ÀÌ ¿­¸®°Å³ª Æ÷Ä¿½º¸¦ ¹ŞÀ» ¶§ ÀÌº¥Æ® ±¸µ¶
+    void OnEnable() // ì°½ì´ ì—´ë¦¬ê±°ë‚˜ í¬ì»¤ìŠ¤ë¥¼ ë°›ì„ ë•Œ ì´ë²¤íŠ¸ êµ¬ë…
     {
         PlayerPrefsManager.OnPreferencesUpdated += RefreshPlayerPrefsCache;
     }
 
-    void OnDisable() // Ã¢ÀÌ ´İÈ÷°Å³ª Æ÷Ä¿½º¸¦ ÀÒÀ» ¶§ ¸Ş¸ğ¸® ´©¼ö¸¦ ¹æÁöÇÏ±â À§ÇØ ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+    void OnDisable() // ì°½ì´ ë‹«íˆê±°ë‚˜ í¬ì»¤ìŠ¤ë¥¼ ìƒì„ ë•Œ ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ë¥¼ ë°©ì§€í•˜ê¸° ìœ„í•´ ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ
     {
         PlayerPrefsManager.OnPreferencesUpdated -= RefreshPlayerPrefsCache;
     }
 
     void OnGUI()
     {
-        GUILayout.Label("Ver. 1.0.0", EditorStyles.boldLabel);
+        GUILayout.Label("Ver. 1.1.0", EditorStyles.boldLabel);
         DrawLine();
 
         if (GUILayout.Button("Refresh List"))
@@ -42,6 +44,8 @@ public class PlayerPrefsViewer : EditorWindow
         }
 
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+
+        List<string> toRemove = new List<string>(); // ì‚­ì œí•  í•­ëª©ì„ ì„ì‹œ ì €ì¥í•  ë¦¬ìŠ¤íŠ¸
 
         foreach (var kvp in playerPrefsCache)
         {
@@ -55,24 +59,40 @@ public class PlayerPrefsViewer : EditorWindow
                 PlayerPrefsEditWindow.Open(kvp.Key, kvp.Value.Value, kvp.Value.Type);
             }
 
+
             if (GUILayout.Button("Remove", GUILayout.Width(60)))
             {
-                keysToRemove.Add(kvp.Key); // »èÁ¦ÇÒ Å° Ãß°¡
+                bool confirm = EditorUtility.DisplayDialog("Confirm Removal", $"Are you sure you want to remove {kvp.Key}?", "Yes", "No");
+                if (confirm)
+                {
+                    toRemove.Add(kvp.Key); // ì‚­ì œ ë¦¬ìŠ¤íŠ¸ì— ì¶”ê°€
+                }
             }
 
             GUILayout.EndHorizontal();
         }
         GUILayout.EndScrollView();
 
+        foreach (var key in toRemove)
+        {
+            PlayerPrefsManager.Instance.RemoveKey(key);
+            playerPrefsCache.Remove(key); // ìºì‹œì—ì„œë„ ì‚­ì œ
+        }
+
         DrawAddKeyValueSection();
 
         if (GUILayout.Button("Remove All"))
         {
-            PlayerPrefsManager.Instance.ClearAll();
-            RefreshPlayerPrefsCache();
+            bool confirm = EditorUtility.DisplayDialog("Confirm Removal", "Are you sure you want to remove all PlayerPrefs?", "Yes", "No");
+            if (confirm)
+            {
+                PlayerPrefsManager.Instance.ClearAll();
+                RefreshPlayerPrefsCache();
+            }
         }
 
-        ProcessRemovals(); // »èÁ¦ÇÒ Å°µéÀ» ¸®½ºÆ®¿¡ ¸ğÀº ´ÙÀ½, GUI ÀÌº¥Æ® Ã³¸®°¡ ¸ğµÎ ³¡³­ ÈÄ¿¡ ÇÑ ¹ø¿¡ »èÁ¦¸¦ Ã³¸®
+
+        ProcessRemovals(); // ì‚­ì œí•  í‚¤ë“¤ì„ ë¦¬ìŠ¤íŠ¸ì— ëª¨ì€ ë‹¤ìŒ, GUI ì´ë²¤íŠ¸ ì²˜ë¦¬ê°€ ëª¨ë‘ ëë‚œ í›„ì— í•œ ë²ˆì— ì‚­ì œë¥¼ ì²˜ë¦¬
     }
 
     private void RefreshPlayerPrefsCache()
@@ -81,8 +101,20 @@ public class PlayerPrefsViewer : EditorWindow
         var allKeys = PlayerPrefsManager.Instance.GetAllKeys();
         foreach (var key in allKeys)
         {
-            var type = PlayerPrefsManager.Instance.GetInt(key, int.MinValue) != int.MinValue ? PlayerPrefsManager.ValueType.Int : PlayerPrefsManager.ValueType.String;
-            var value = type == PlayerPrefsManager.ValueType.Int ? PlayerPrefs.GetInt(key).ToString() : PlayerPrefs.GetString(key);
+            var type = PlayerPrefsManager.Instance.GetType(key);
+            string value = "";
+            switch (type)
+            {
+                case PlayerPrefsManager.ValueType.String:
+                    value = PlayerPrefsManager.Instance.GetString(key);
+                    break;
+                case PlayerPrefsManager.ValueType.Int:
+                    value = PlayerPrefsManager.Instance.GetInt(key).ToString();
+                    break;
+                case PlayerPrefsManager.ValueType.Float:
+                    value = PlayerPrefsManager.Instance.GetFloat(key).ToString();
+                    break;
+            }
             playerPrefsCache[key] = (value, type);
         }
     }
@@ -115,12 +147,20 @@ public class PlayerPrefsViewer : EditorWindow
     {
         if (!string.IsNullOrEmpty(newKey))
         {
-            PlayerPrefsManager.ValueType selectedType = (PlayerPrefsManager.ValueType)selectedTypeIndex;
+            // ì´ë¯¸ ì¡´ì¬í•˜ëŠ” í‚¤ì¸ì§€ í™•ì¸
+            if (PlayerPrefsManager.Instance.GetAllKeys().Contains(newKey))
+            {
+                EditorUtility.DisplayDialog("Duplicate Key", "A key with the same name already exists. Please use a different key.", "OK");
+                return; 
+            }
+
+            PlayerPrefsManager.ValueType selectedType = (PlayerPrefsManager.ValueType)Enum.Parse(typeof(PlayerPrefsManager.ValueType), typeOptions[selectedTypeIndex]);
             if (selectedType == PlayerPrefsManager.ValueType.Int)
             {
                 if (int.TryParse(newValue, out int intValue))
                 {
                     PlayerPrefsManager.Instance.SetInt(newKey, intValue);
+                    PlayerPrefsManager.Instance.SetType(newKey, selectedType);
                 }
                 else
                 {
@@ -128,16 +168,33 @@ public class PlayerPrefsViewer : EditorWindow
                     return;
                 }
             }
-            else
+            else if (selectedType == PlayerPrefsManager.ValueType.Float)
+            {
+                if (float.TryParse(newValue, out float floatValue))
+                {
+                    PlayerPrefsManager.Instance.SetFloat(newKey, floatValue);
+                    PlayerPrefsManager.Instance.SetType(newKey, selectedType);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Invalid Value", "Please enter floating point values â€‹â€‹correctly.", "OK");
+                    return;
+                }
+            }
+            else // String íƒ€ì… ì²˜ë¦¬
             {
                 PlayerPrefsManager.Instance.SetString(newKey, newValue);
+                PlayerPrefsManager.Instance.SetType(newKey, selectedType);
             }
 
+            // ìƒˆë¡œìš´ í‚¤ ì¶”ê°€ í›„ í•„ë“œ ì´ˆê¸°í™”
             newKey = "";
             newValue = "";
-            RefreshPlayerPrefsCache();
+            selectedTypeIndex = 0;
+            RefreshPlayerPrefsCache(); // PlayerPrefs ìºì‹œ ê°±ì‹ 
         }
     }
+
 
     private void ProcessRemovals()
     {
