@@ -1,5 +1,6 @@
 # PlayerPrefsViewer
     [패치 노트]
+    
     			v1.1.0 - 24.03.19
     				   - Float Type 추가
                        - Key 수정 제한 및 관련 버그 수정
