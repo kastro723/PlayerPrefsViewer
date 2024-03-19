@@ -1,13 +1,14 @@
 # PlayerPrefsViewer
     [패치 노트]
     
-    			v1.1.0 - 24.03.19
-    				   - Float Type 추가
-                       - Key 수정 제한 및 관련 버그 수정
+    		 v1.1.0 - 24.03.19
+    			    - Float Type 추가
+                     - Key 수정 제한 및 관련 버그 수정
     			
-                v1.0.0 - 24.03.18
+            v1.0.0 - 24.03.18
                        - PlayerPrefs Viewer 기능 구현
 
+     
 ------------------------------------------------------------------------------------------------------
 ![image](https://github.com/kastro723/PlayerPrefsViewer/assets/55536937/b14a6da8-704c-445d-b4e0-221374f7f336)
 
