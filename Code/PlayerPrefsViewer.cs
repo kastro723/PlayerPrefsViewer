@@ -35,7 +35,7 @@ public class PlayerPrefsViewer : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Ver. 1.1.0", EditorStyles.boldLabel);
+        GUILayout.Label("Ver. 1.1.1", EditorStyles.boldLabel);
         DrawLine();
 
         if (GUILayout.Button("Refresh List"))
@@ -160,7 +160,6 @@ public class PlayerPrefsViewer : EditorWindow
                 if (int.TryParse(newValue, out int intValue))
                 {
                     PlayerPrefsManager.Instance.SetInt(newKey, intValue);
-                    PlayerPrefsManager.Instance.SetType(newKey, selectedType);
                 }
                 else
                 {
@@ -173,7 +172,6 @@ public class PlayerPrefsViewer : EditorWindow
                 if (float.TryParse(newValue, out float floatValue))
                 {
                     PlayerPrefsManager.Instance.SetFloat(newKey, floatValue);
-                    PlayerPrefsManager.Instance.SetType(newKey, selectedType);
                 }
                 else
                 {
@@ -184,7 +182,6 @@ public class PlayerPrefsViewer : EditorWindow
             else // String 타입 처리
             {
                 PlayerPrefsManager.Instance.SetString(newKey, newValue);
-                PlayerPrefsManager.Instance.SetType(newKey, selectedType);
             }
 
             // 새로운 키 추가 후 필드 초기화

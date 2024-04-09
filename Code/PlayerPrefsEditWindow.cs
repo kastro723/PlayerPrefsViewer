@@ -58,17 +58,14 @@ public class PlayerPrefsEditWindow : EditorWindow
         if (selectedType == PlayerPrefsManager.ValueType.String)
         {
             PlayerPrefsManager.Instance.SetString(key, value);
-            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.String);
         }
         else if (selectedType == PlayerPrefsManager.ValueType.Int && int.TryParse(value, out int intValue))
         {
             PlayerPrefsManager.Instance.SetInt(key, intValue);
-            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.Int);
         }
         else if (selectedType == PlayerPrefsManager.ValueType.Float && float.TryParse(value, out float floatValue))
         {
             PlayerPrefsManager.Instance.SetFloat(key, floatValue);
-            PlayerPrefsManager.Instance.SetType(key, PlayerPrefsManager.ValueType.Float); // 타입 정보 업데이트
         }
         else
         {

@@ -50,8 +50,8 @@ public class PlayerPrefsManager
     public void SetString(string key, string value)
     {
         PlayerPrefs.SetString(key, value);
+        SetType(key, ValueType.String);
         AddKey(key);
-        PlayerPrefs.Save();
     }
 
     public string GetString(string key, string defaultValue = "")
@@ -62,8 +62,8 @@ public class PlayerPrefsManager
     public void SetInt(string key, int value)
     {
         PlayerPrefs.SetInt(key, value);
+        SetType(key,ValueType.Int);
         AddKey(key);
-        PlayerPrefs.Save();
     }
 
     public int GetInt(string key, int defaultValue = 0)
@@ -73,8 +73,8 @@ public class PlayerPrefsManager
     public void SetFloat(string key, float value)
     {
         PlayerPrefs.SetFloat(key, value);
+        SetType(key,ValueType.Float);
         AddKey(key);
-        PlayerPrefs.Save();
     }
 
     public float GetFloat(string key, float defaultValue = 0f)
@@ -133,15 +133,26 @@ public class PlayerPrefsManager
         }
     }
 
-    public void SetType(string key, ValueType type)
+    private void SetType(string key, ValueType type)
     {
         PlayerPrefs.SetString(key + "_type", type.ToString());
-        PlayerPrefs.Save();
     }
 
     public ValueType GetType(string key)
     {
         var typeStr = PlayerPrefs.GetString(key + "_type", ValueType.String.ToString());
         return (ValueType)Enum.Parse(typeof(ValueType), typeStr);
+        
     }
+
+    public void Save()
+    {
+        PlayerPrefs.Save();
+    }
+
+    public bool HasKey(string key)
+    {
+        return PlayerPrefs.HasKey(key);
+    }
+   
 }
