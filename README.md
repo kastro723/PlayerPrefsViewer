@@ -1,7 +1,11 @@
 # PlayerPrefsViewer
 
      [패치노트]
-            
+
+            v1.1.1  - 24.04.09
+                      PlayerPrefsManager 코드 로직 수정
+                           (SetType 자동화)
+                      
             v1.1.0  - 24.03.19
                     - Float Type 추가
                     - Key 수정 제한 및 관련 버그 수정
